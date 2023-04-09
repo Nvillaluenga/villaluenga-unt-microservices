@@ -34,12 +34,14 @@ func InsertNewOrder(order *model.Order) (*model.Order, error) {
 }
 
 func UpdateOrderStatus(orderId int, status string) (*model.Order, error) {
-	order, err := GetOrder(orderId)
-	if err != nil {
-		return nil, err
+	for index, order := range orders {
+		if order.Id == orderId {
+			order.Status = status
+			orders[index] = order
+			return &order, nil
+		}
 	}
-	order.Status = status
-	return order, nil
+	return nil, errors.New("order not found")
 }
 
 func GetOrder(orderId int) (*model.Order, error) {

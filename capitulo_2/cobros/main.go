@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"compralibre.com/cobros/model"
 	"compralibre.com/cobros/service"
@@ -15,6 +16,7 @@ func main() {
 
 	// Define a route for the "payment" endpoint
 	router.POST("/order", calculateOrder)
+	router.GET("/order/:id", getOrder)
 	router.POST("/payment", paymentHandler)
 
 	// Start the server on port 8080
@@ -36,7 +38,7 @@ func calculateOrder(c *gin.Context) {
 	if err != nil {
 		log.Print("calculateOrder - CalculateOrderAmount -", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "There was an error while claculating your order",
+			"error": err.Error(),
 		})
 		return
 	}
@@ -47,7 +49,7 @@ func calculateOrder(c *gin.Context) {
 	if err != nil {
 		log.Print("calculateOrder - SaveOrder -", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "There was an error while processing your order",
+			"error": err.Error(),
 		})
 		return
 	}
@@ -58,6 +60,12 @@ func calculateOrder(c *gin.Context) {
 		"amount":  order.TotalAmount,
 		"orderId": order.Id,
 	})
+}
+
+func getOrder(c *gin.Context) {
+	orderId, _ := strconv.Atoi(c.Param("id"))
+	order, _ := service.GetOrder(orderId)
+	c.JSON(http.StatusBadRequest, order)
 }
 
 func paymentHandler(c *gin.Context) {
@@ -74,7 +82,7 @@ func paymentHandler(c *gin.Context) {
 	amount, err := service.ProcessPayment(payment)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "There was an error while processing your payment",
+			"error": err.Error(),
 		})
 		return
 	}

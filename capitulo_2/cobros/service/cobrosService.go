@@ -37,11 +37,21 @@ func SaveOrder(order *model.Order) error {
 	return err
 }
 
+func GetOrder(orderId int) (*model.Order, error) {
+	order, err := repository.GetOrder(orderId)
+	return order, err
+}
+
 func ProcessPayment(payment model.Payment) (float64, error) {
 	order, err := repository.GetOrder(payment.OrderId)
 	if err != nil {
 		return 0, err
 	}
+
+	if order.Status != "PENDING" {
+		return 0, errors.New("the order is no longer available")
+	}
+
 	for _, product := range order.Products {
 		productId := product.ProductId
 		quantity := product.Quantity
