@@ -1,5 +1,5 @@
 from random import randint, random
-from tinydb import Query, TinyDB
+from tinydb import TinyDB
 from tinydb.table import Document 
 
 stock_table = TinyDB('stock.json').table('stock')

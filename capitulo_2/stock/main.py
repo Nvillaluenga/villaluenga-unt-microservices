@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from http import HTTPStatus
 from repository.stockRepository import get_stock, update_stock
 
